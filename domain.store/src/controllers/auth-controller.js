@@ -44,6 +44,22 @@ async function login(req, res) {
     res.status(500).json({ message_error: err.message, err });
   }
 }
-async function isloggedin(req, res) {}
+async function isloggedin(req, res) {
+  try {
+    const token = req.cookies?.token || req.headers.access_token;
+    if (!token)
+      return res.status(401).json({ message_error: "please provide a token" });
 
-module.exports = { login };
+    jwt.verify(token, ACCESS_TOKEN_SECRET, async (err, store) => {
+      if (err) {
+        return res.status(401).json({ message_error: err.message, err });
+      }
+
+      return res.status(200).json({ store });
+    });
+  } catch (error) {
+    res.status(500).json({ message_error: error.message, error });
+  }
+}
+
+module.exports = { login, isloggedin };
