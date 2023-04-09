@@ -1,8 +1,6 @@
-require("dotenv").config({ path: "../../../.env" });
-
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const StoreModule = require("../../../modules/store.model");
+const StoreModule = require("../models/store.model");
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 

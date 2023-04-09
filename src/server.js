@@ -1,7 +1,7 @@
-require("dotenv").config({ path: "../../.env" });
+require("dotenv").config();
 const http = require("http");
 const app = require("./app");
-const mongoConnect = require("../../config/mongodb.connect");
+const mongoConnect = require("./config/mongodb.connect");
 const { connection } = require("mongoose");
 const server = http.createServer(app);
 

@@ -4,12 +4,16 @@ const helmet = require("helmet");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
-const storeRoutes = require("./routes/store-router");
-const authRoutes = require("./routes/auth-router");
+const storeRoutes = require("./routes/store-routes");
+const authRoutes = require("./routes/auth-routes");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+  })
+);
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
