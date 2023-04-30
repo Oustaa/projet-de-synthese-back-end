@@ -42,6 +42,7 @@ async function login(req, res) {
     res.status(500).json({ message_error: err.message, err });
   }
 }
+
 async function isloggedin(req, res) {
   try {
     const token = req.cookies?.token || req.headers.access_token;

@@ -1,11 +1,20 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const StoreModule = require("../models/store.model");
+const formidable = require("formidable");
+
+const serverErrorHandler = require("../middlewares/error_handler");
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
+// require auth as a store owner
 async function getStore(req, res) {
-  const id = req.store?.id || "6420be4f1a12583981fc6d6b";
+  const id = req.store?.id;
+
+  if (!id)
+    return res
+      .status(403)
+      .json({ message: "you cant get the store, you must log in first." });
 
   try {
     const store = await StoreModule.findById(id, { password: 0, __v: 0 });
@@ -22,12 +31,35 @@ async function getStore(req, res) {
       items: store,
     });
   } catch (error) {
-    return res.status(500).json({
-      status: 500,
-      error,
-      message_error: `internal server error, ${error.message}`,
-      stack: error?.stack,
-    });
+    serverErrorHandler(res, error);
+  }
+}
+
+// user
+async function getStoreById(req, res) {
+  const id = req.params.id;
+
+  if (!id) {
+    return res.status(204).json({ message: "Please provide a store id." });
+  }
+
+  try {
+    const store = await StoreModule.findById(id, {
+      name: 1,
+      bg_image: 1,
+      avatar: 1,
+      currency: 1,
+      followers: 1,
+    }).exec();
+
+    if (!store)
+      return res
+        .status(404)
+        .json({ message: `There is no store with id ${id}.` });
+
+    return res.status(200).json({ store });
+  } catch (error) {
+    serverErrorHandler(res, error);
   }
 }
 
@@ -110,13 +142,8 @@ async function createStore(req, res, next) {
 
     return res.status(200).json({ token, name: store.name });
   } catch (error) {
-    return res.status(500).json({
-      status: 500,
-      error,
-      message_error: `internal server error, ${error.message}`,
-      stack: error?.stack,
-    });
+    serverErrorHandler(res, error);
   }
 }
 
-module.exports = { getStore, createStore };
+module.exports = { getStore, createStore, getStoreById };

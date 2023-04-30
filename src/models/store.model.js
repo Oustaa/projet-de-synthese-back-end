@@ -11,10 +11,11 @@ const storeSchema = {
   password: { type: String, required: true },
   phone_number: { type: String, required: true },
   phone_verified: { type: Boolean, default: false },
+  followers: { type: [String], default: 0 },
+  visits: { type: [Object], default: [] },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: null },
   deleted_at: { type: Date, default: null },
-  followers: { type: [String], default: 0 },
 };
 
 module.exports = mongoose.model("store", storeSchema);
