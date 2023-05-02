@@ -1,9 +1,9 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const StoreModule = require("../models/store.model");
-const formidable = require("formidable");
 
 const serverErrorHandler = require("../middlewares/error_handler");
+const storeModel = require("../models/store.model");
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
@@ -146,4 +146,37 @@ async function createStore(req, res, next) {
   }
 }
 
-module.exports = { getStore, createStore, getStoreById };
+async function putStore(req, res) {
+  const updateInfo = req.body.data;
+  const password = req.body.password;
+  const id = req.store?.id;
+
+  const store = await storeModel.findById(id);
+  console.log(password, store.password);
+  const verifyPassword = await bcrypt.compare(password, store.password);
+
+  if (!verifyPassword)
+    return res
+      .status(403)
+      .json({ message: "Invalid password", password: false });
+
+  if (updateInfo.password) {
+    const hashPassword = await bcrypt.hash(updateInfo.password, 10);
+    Object.assign(password, hashPassword);
+  }
+
+  if (!id)
+    return res.status(403).json({
+      message: "can't change store information unless you own it.",
+    });
+
+  const updatedStore = await StoreModule.updateOne(
+    { _id: id },
+    { ...updateInfo, updated_at: new Date() }
+  );
+  return res.status(201).json({
+    updatedStore,
+  });
+}
+
+module.exports = { getStore, createStore, getStoreById, putStore };

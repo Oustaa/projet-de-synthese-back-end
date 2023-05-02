@@ -4,14 +4,17 @@ const {
   getStore,
   createStore,
   getStoreById,
+  putStore,
 } = require("../controllers/store-controller");
-const { storeImage } = require("../middlewares/storeImage");
+const { checkTocken } = require("../middlewares/authentication");
+
 const router = express.Router();
 
 // getting store for store owner
-router.get("/", getStore);
+router.get("/", checkTocken, getStore);
 // getting store for a user
 router.get("/:id", getStoreById);
-router.post("/", createStore);
+router.post("/", checkTocken, createStore);
+router.put("/", checkTocken, putStore);
 
 module.exports = router;
