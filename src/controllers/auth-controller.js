@@ -17,9 +17,13 @@ async function login(req, res) {
         email: false,
       });
     }
+
     const isMatch = await bcrypt.compare(password, store.password);
 
     if (!isMatch) {
+      if (store.deleted_at) {
+        return res.status(307).json({ message: "Acocount deleted" });
+      }
       return res.status(400).json({
         message: "Invalid Credentials",
         email: true,
@@ -31,6 +35,7 @@ async function login(req, res) {
       { id: store._id, name: store.name },
       ACCESS_TOKEN_SECRET
     );
+
     res.cookie("token", token, {
       maxAge: 43200,
       secure: true,

@@ -146,14 +146,27 @@ async function createStore(req, res, next) {
   }
 }
 
+async function getStoreBy(req, res) {
+  const { filter, limit } = req.body;
+  console.log(req.body);
+  const storeCount = await storeModel.find(filter, {}).count();
+
+  if (storeCount === limit) {
+    return res.status(409).json({ conflect: true });
+  } else {
+    return res.status(200).json({ conflect: false });
+  }
+}
+
 async function putStore(req, res) {
   const updateInfo = req.body.data;
   const password = req.body.password;
   const id = req.store?.id;
-
   const store = await storeModel.findById(id);
-  console.log(password, store.password);
   const verifyPassword = await bcrypt.compare(password, store.password);
+
+  console.log(verifyPassword);
+  console.log(password, store.password);
 
   if (!verifyPassword)
     return res
@@ -161,8 +174,9 @@ async function putStore(req, res) {
       .json({ message: "Invalid password", password: false });
 
   if (updateInfo.password) {
+    console.log(updateInfo.password);
     const hashPassword = await bcrypt.hash(updateInfo.password, 10);
-    Object.assign(password, hashPassword);
+    Object.assign(updateInfo, { password: JSON.stringify(hashPassword) });
   }
 
   if (!id)
@@ -179,4 +193,4 @@ async function putStore(req, res) {
   });
 }
 
-module.exports = { getStore, createStore, getStoreById, putStore };
+module.exports = { getStore, createStore, getStoreById, putStore, getStoreBy };
