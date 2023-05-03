@@ -20,6 +20,7 @@ const productSchema = {
       five: 0,
     },
   },
+  description: { type: String, default: "" },
   reviews: { type: Object, default: [] },
   extra_images: [String],
   category_id: { type: String, require: true },

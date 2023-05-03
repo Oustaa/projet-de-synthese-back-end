@@ -5,9 +5,10 @@ const path = require("path");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, createFolder(req.params.name));
+    cb(null, createFolder(req.store.name));
   },
   filename: function (req, file, cb) {
+    req.imgname = file.fieldname;
     cb(
       null,
       Date.now() + "-" + file.fieldname + path.extname(file.originalname)
@@ -15,8 +16,9 @@ const storage = multer.diskStorage({
   },
 });
 
-async function storeImage(req, res, next) {
+async function storeImage(req, res, next, fieldName) {
   try {
+    let fieldName;
     const upload = multer({
       storage,
       fileFilter: function (req, file, cb) {
@@ -26,7 +28,7 @@ async function storeImage(req, res, next) {
         cb(null, true);
       },
     });
-    upload.array("images")(req, res, function (err) {
+    upload.single(req.params.type)(req, res, function (err) {
       if (err instanceof multer.MulterError) {
         console.log(err);
         // A Multer error occurred when uploading.
@@ -37,7 +39,7 @@ async function storeImage(req, res, next) {
         return res.status(400).json({ error: "Error uploading file" });
       }
 
-      next();
+      res.status(202).json({});
     });
   } catch (error) {
     next(error);

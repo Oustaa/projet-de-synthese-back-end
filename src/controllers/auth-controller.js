@@ -66,4 +66,24 @@ async function isloggedin(req, res) {
   }
 }
 
-module.exports = { login, isloggedin };
+async function confirmPassword(req, res) {
+  const password = req.body.password;
+  const id = req.store.id;
+
+  if (!id) return res.status(401).json({ message: "Please log in" });
+  try {
+    const store = await StoreModule.findById(id);
+
+    if (!store) return res.status(401).json({ message: `no store found` });
+
+    const matched = await bcrypt.compare(password, store.password);
+
+    if (matched) return res.status(200).json({ matched });
+
+    return res.status(403).json({ matched });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+module.exports = { login, isloggedin, confirmPassword };

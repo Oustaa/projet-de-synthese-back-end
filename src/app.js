@@ -4,6 +4,7 @@ const path = require("path");
 const helmet = require("helmet");
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const multer = require("multer");
 
 const storeRoutes = require("./routes/store-routes");
 const authRoutes = require("./routes/auth-routes");

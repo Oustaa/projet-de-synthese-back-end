@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const StoreModule = require("../models/store.model");
+const ProductModule = require("../models/product.model");
 
 const serverErrorHandler = require("../middlewares/error_handler");
 const storeModel = require("../models/store.model");
@@ -159,22 +160,12 @@ async function getStoreBy(req, res) {
 }
 
 async function putStore(req, res) {
-  const updateInfo = req.body.data;
-  const password = req.body.password;
-  const id = req.store?.id;
-  const store = await storeModel.findById(id);
-  const verifyPassword = await bcrypt.compare(password, store.password);
+  const updateInfo = req.body;
+  const id = req.store.id;
 
-  console.log(verifyPassword);
-  console.log(password, store.password);
-
-  if (!verifyPassword)
-    return res
-      .status(403)
-      .json({ message: "Invalid password", password: false });
+  console.log(updateInfo);
 
   if (updateInfo.password) {
-    console.log(updateInfo.password);
     const hashPassword = await bcrypt.hash(updateInfo.password, 10);
     Object.assign(updateInfo, { password: JSON.stringify(hashPassword) });
   }
@@ -193,4 +184,27 @@ async function putStore(req, res) {
   });
 }
 
-module.exports = { getStore, createStore, getStoreById, putStore, getStoreBy };
+async function deleteStore(req, res) {
+  const id = req.store.id;
+
+  try {
+    const deleteStoreCount = await StoreModule.deleteOne({ _id: id });
+    if (deleteStoreCount.acknowledged && deleteStoreCount.deletedCount === 1) {
+      const deleteProductsCount = await ProductModule.deleteMany({
+        store_id: id,
+      });
+    }
+    return res.status(201).json(deleteStoreCount);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+module.exports = {
+  getStore,
+  createStore,
+  getStoreById,
+  putStore,
+  getStoreBy,
+  deleteStore,
+};

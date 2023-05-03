@@ -1,11 +1,14 @@
 const express = require("express");
 
+const { storeImage } = require("../services/uploadImage");
+
 const {
   getStore,
   createStore,
   getStoreBy,
   getStoreById,
   putStore,
+  deleteStore,
 } = require("../controllers/store-controller");
 const { checkTocken } = require("../middlewares/authentication");
 
@@ -18,5 +21,7 @@ router.get("/:id", getStoreById);
 router.post("/exists", getStoreBy);
 router.post("/", checkTocken, createStore);
 router.put("/", checkTocken, putStore);
+router.delete("/", checkTocken, deleteStore);
+router.post("/upload/:type", checkTocken, storeImage);
 
 module.exports = router;
