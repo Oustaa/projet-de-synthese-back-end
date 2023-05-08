@@ -28,7 +28,7 @@ async function storeImage(req, res, next) {
         cb(null, true);
       },
     });
-    upload.array("images", 5)(req, res, function (err) {
+    upload.array("images", 6)(req, res, function (err) {
       if (err instanceof multer.MulterError) {
         console.log(err);
         // A Multer error occurred when uploading.

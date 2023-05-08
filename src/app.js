@@ -8,6 +8,7 @@ const multer = require("multer");
 
 const storeRoutes = require("./routes/store-routes");
 const authRoutes = require("./routes/auth-routes");
+const categoryRoutes = require("./routes/category-routes");
 
 const app = express();
 
@@ -36,5 +37,6 @@ app.use("/api", express.static(path.join(__dirname, "..", "public")));
 
 app.use("/api/stores", storeRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/categories", categoryRoutes);
 
 module.exports = app;

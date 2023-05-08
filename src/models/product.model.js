@@ -23,8 +23,8 @@ const productSchema = {
   description: { type: String, default: "" },
   reviews: { type: Object, default: [] },
   extra_images: [String],
-  category_id: { type: String, require: true },
-  subcategory_id: { type: String, require: true },
+  categories_id: { type: [String], require: true },
+  subcategories_id: { type: [String], require: true },
   inserted_at: { type: Date, default: Date.now() },
   // for stock management
   available: { type: Boolean, default: false },

@@ -57,7 +57,7 @@ async function getStoresProducts(req, res) {
 }
 
 // get products by category
-async function createProductsByCategory(req, res) {
+async function getProductsByCategory(req, res) {
   const category = req.params.category;
 
   if (!category)
@@ -106,21 +106,11 @@ async function createProduct(req, res) {
   const productsInfo = req.body;
   const store_id = req.store.id;
   // validate the producs info before creating
-  if (
-    !productsInfo.title ||
-    !productsInfo.price ||
-    !productsInfo.about ||
-    !productsInfo.phone_number
-  ) {
+  if (!productsInfo.title || !productsInfo.price) {
     // if it's not valid return a response with 400 status code and the none valid product info
     return res.status(404).json({
       message: `missing required field`,
-      field: [
-        !productsInfo.title && "title",
-        !productsInfo.price && "price",
-        !productsInfo.about && "about",
-        !productsInfo.phone_number && "phone_number",
-      ],
+      field: [!productsInfo.title && "title", !productsInfo.price && "price"],
     });
   }
 }
@@ -128,5 +118,6 @@ async function createProduct(req, res) {
 module.exports = {
   getProductsByStoreId,
   getStoresProducts,
-  createProductsByCategory,
+  getProductsByCategory,
+  createProduct,
 };
