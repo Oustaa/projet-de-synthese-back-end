@@ -9,12 +9,28 @@ function createFolder(storeName) {
     "..",
     "public",
     "images",
-    storeName || "testfolder"
+    storeName
   );
 
   if (!fs.existsSync(imagesFolderPath)) {
     // create a folder called "images"
-    fs.mkdirSync(imagesFolderPath);
+    fs.mkdirSync(
+      path.join(__dirname, "..", "..", "public", "images", storeName)
+    );
+    fs.mkdirSync(
+      path.join(
+        __dirname,
+        "..",
+        "..",
+        "public",
+        "images",
+        storeName,
+        "products"
+      )
+    );
+    fs.mkdirSync(
+      path.join(__dirname, "..", "..", "public", "images", storeName, "images")
+    );
   }
   return imagesFolderPath;
 }

@@ -5,13 +5,16 @@ const path = require("path");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, createFolder(req.body.name || req.store?.name));
-  },
-  filename: function (req, file, cb) {
-    console.log(file);
     cb(
       null,
-      Date.now() + "-" + file.fieldname + path.extname(file.originalname)
+      path.join(createFolder(req.body.name || req.store?.name), "products")
+    );
+  },
+  filename: function (req, file, cb) {
+    console.log(req.body.title);
+    cb(
+      null,
+      req.body.title + "-" + Date.now() + path.extname(file.originalname)
     );
   },
 });
@@ -21,14 +24,13 @@ async function storeImage(req, res, next) {
     const upload = multer({
       storage,
       fileFilter: function (req, file, cb) {
-        // Only allow image files
         if (!file.mimetype.startsWith("image/")) {
           return cb(new Error("Only image files are allowed!"));
         }
         cb(null, true);
       },
     });
-    upload.array("images", 6)(req, res, function (err) {
+    upload.array("images[]", 10)(req, res, function (err) {
       if (err instanceof multer.MulterError) {
         console.log(err);
         // A Multer error occurred when uploading.

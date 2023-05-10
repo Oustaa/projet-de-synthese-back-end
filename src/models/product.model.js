@@ -7,7 +7,7 @@ const productSchema = {
   price: { type: Number, require: true },
   currency: { type: String, default: "USD" },
   images: { type: [String], require: true },
-  spescification: { type: [Object], default: [] },
+  specifications: { type: [Object], default: [] },
   about: { type: [String], require: true },
   QandA: { type: Object, default: [] },
   reviewsOverview: {

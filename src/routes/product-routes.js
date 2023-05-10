@@ -1,11 +1,15 @@
 const express = require("express");
 
 const { checkTocken } = require("../middlewares/authentication");
-const { createProduct } = require("../controllers/products-controller");
+const { storeImage } = require("../middlewares/storeImage");
+const {
+  createProduct,
+  getStoresProducts,
+} = require("../controllers/products-controller");
 
 const router = express.Router();
 
-// router.get("/");
-router.post("/", checkTocken, createProduct);
+router.get("/store", checkTocken, getStoresProducts);
+router.post("/", checkTocken, storeImage, createProduct);
 
 module.exports = router;
