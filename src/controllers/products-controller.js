@@ -1,6 +1,7 @@
 const ProductsModel = require("../models/product.model");
+const StoreModule = require("../models/store.model");
+
 const serverErrorHandler = require("../middlewares/error_handler");
-const productModel = require("../models/product.model");
 
 // projection for getting multiple products
 const projection = {
@@ -38,14 +39,16 @@ async function getProductsByStoreId(req, res) {
   }
 }
 
-// get store products fro store owner
+// get store products for store owner
 async function getStoresProducts(req, res) {
   const storeID = req.store.id;
 
   if (!storeID) return res.status(403);
 
   try {
-    const products = await ProductsModel.find({ store_id: storeID });
+    const products = await ProductsModel.find({ store_id: storeID }).sort({
+      inserted_at: -1,
+    });
 
     if (!products)
       return res
@@ -107,7 +110,7 @@ async function createProduct(req, res) {
   const productsInfo = req.body;
 
   const images = req.files.map((file) => file.filename);
-  console.log(req.files);
+  console.log(images);
   const store_id = req.store.id;
 
   // validate the producs info before creating
@@ -120,15 +123,17 @@ async function createProduct(req, res) {
   }
 
   try {
-    const product = await productModel.create({
+    const product = await ProductsModel.create({
       ...productsInfo,
       title: JSON.parse(productsInfo.title),
-      description: JSON.parse(productsInfo.description || ""),
-      specifications: JSON.parse(productsInfo.specifications || []),
+      description: productsInfo.description,
+      specifications: productsInfo.specifications
+        ? JSON.parse(productsInfo.specifications)
+        : [],
       price: JSON.parse(productsInfo.price),
       available: Boolean(JSON.parse(productsInfo.stock_Quantity)),
       stock_Quantity: JSON.parse(productsInfo.stock_Quantity),
-      about: JSON.parse(productsInfo.about),
+      about: productsInfo.about ? JSON.parse(productsInfo.about) : [],
       categories_id: JSON.parse(productsInfo.categories_id),
       subcategories_id: JSON.parse(productsInfo.subcategories_id),
       images,
@@ -141,9 +146,64 @@ async function createProduct(req, res) {
   }
 }
 
+async function deleteProduct(req, res) {
+  const id = req.params.id;
+  const storeId = req.store.id;
+
+  try {
+    const product = await ProductsModel.findById(id);
+
+    if (product.store_id !== storeId)
+      return res.json({ message: "Product not yours" });
+
+    const deleteCount = await ProductsModel.deleteOne({ _id: id });
+
+    return res.json(deleteCount);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
+async function updatedProduct(req, res) {
+  const id = req.params.id;
+  const storeid = req.store.id;
+
+  try {
+    const product = await ProductsModel.findById(id);
+
+    const updatedProduct = await ProductsModel.updateOne({ _id: id }, req.body);
+    console.log(updatedProduct);
+    return res.json(updatedProduct);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
+async function postQuestion(req, res) {
+  const productId = req.params.id;
+
+  try {
+    const product = await ProductsModel.findById(productId);
+
+    const updateCount = await StoreModule.updateOne(
+      { _id: product.store_id },
+      {
+        $push: { questions: { product_id: productId, text: req.body.text } },
+      }
+    );
+
+    return res.json(updateCount);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
 module.exports = {
   getProductsByStoreId,
   getStoresProducts,
   getProductsByCategory,
   createProduct,
+  deleteProduct,
+  updatedProduct,
+  postQuestion,
 };

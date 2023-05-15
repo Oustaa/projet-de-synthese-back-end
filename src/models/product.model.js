@@ -9,7 +9,12 @@ const productSchema = {
   images: { type: [String], require: true },
   specifications: { type: [Object], default: [] },
   about: { type: [String], require: true },
-  QandA: { type: Object, default: [] },
+  QandA: {
+    type: [
+      { question: String, answer: String, vote: { type: Number, default: 0 } },
+    ],
+    default: [],
+  },
   reviewsOverview: {
     type: Object,
     default: {

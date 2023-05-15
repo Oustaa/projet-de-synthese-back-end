@@ -4,7 +4,7 @@ const StoreModule = require("../models/store.model");
 const ProductModule = require("../models/product.model");
 
 const serverErrorHandler = require("../middlewares/error_handler");
-const storeModel = require("../models/store.model");
+const renameFolder = require("../utils/renameFolder");
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
@@ -150,7 +150,7 @@ async function createStore(req, res, next) {
 async function getStoreBy(req, res) {
   const { filter, limit } = req.body;
   console.log(req.body);
-  const storeCount = await storeModel.find(filter, {}).count();
+  const storeCount = await StoreModule.find(filter, {}).count();
 
   if (storeCount === limit) {
     return res.status(409).json({ conflect: true });
@@ -162,8 +162,6 @@ async function getStoreBy(req, res) {
 async function putStore(req, res) {
   const updateInfo = req.body;
   const id = req.store.id;
-
-  console.log(updateInfo);
 
   if (updateInfo.password) {
     const hashPassword = await bcrypt.hash(updateInfo.password, 10);
@@ -179,6 +177,8 @@ async function putStore(req, res) {
     { _id: id },
     { ...updateInfo, updated_at: new Date() }
   );
+  // renameFolder(req.store.name, updateInfo.name);
+
   return res.status(201).json({
     updatedStore,
   });
@@ -200,6 +200,46 @@ async function deleteStore(req, res) {
   }
 }
 
+async function postAnswer(req, res) {
+  const qestionId = req.query.questionId;
+  const productId = req.params.id;
+  const storeid = req.store.id;
+
+  const QandA = req.body;
+
+  console.log(QandA, qestionId, productId, storeid);
+
+  try {
+    const { acknowledged, modifiedCount } = await ProductModule.updateOne(
+      {
+        _id: productId,
+      },
+      {
+        $push: {
+          QandA: { question: QandA.question, answer: QandA.answer },
+        },
+      }
+    );
+
+    if (acknowledged && modifiedCount) {
+      const deleteQuestion = await StoreModule.updateOne(
+        { _id: storeid },
+        {
+          $pull: {
+            questions: { _id: { $in: [qestionId] } },
+          },
+        }
+      );
+
+      return res.json(deleteQuestion);
+    } else {
+      return res.json({ message: "answer was not inserted" });
+    }
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
 module.exports = {
   getStore,
   createStore,
@@ -207,4 +247,5 @@ module.exports = {
   putStore,
   getStoreBy,
   deleteStore,
+  postAnswer,
 };

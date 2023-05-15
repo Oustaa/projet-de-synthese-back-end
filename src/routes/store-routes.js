@@ -9,6 +9,7 @@ const {
   getStoreById,
   putStore,
   deleteStore,
+  postAnswer,
 } = require("../controllers/store-controller");
 const { checkTocken } = require("../middlewares/authentication");
 
@@ -19,9 +20,10 @@ router.get("/", checkTocken, getStore);
 // getting store for a user
 router.get("/:id", getStoreById);
 router.post("/exists", getStoreBy);
-router.post("/", checkTocken, createStore);
+router.post("/", createStore);
 router.put("/", checkTocken, putStore);
 router.delete("/", checkTocken, deleteStore);
 router.post("/upload/:type", checkTocken, storeImage);
+router.post("/answer/:id", checkTocken, postAnswer);
 
 module.exports = router;
