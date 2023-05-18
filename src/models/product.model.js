@@ -2,7 +2,11 @@ const mongoose = require("mongoose");
 
 const productSchema = {
   // products information
-  store_id: { type: String, default: 5 },
+  store_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Store",
+    required: true,
+  },
   title: { type: String, require: true },
   price: { type: Number, require: true },
   currency: { type: String, default: "USD" },
@@ -26,7 +30,7 @@ const productSchema = {
     },
   },
   description: { type: String, default: "" },
-  reviews: { type: Object, default: [] },
+  reviews: { type: Object, default: 0 },
   extra_images: [String],
   categories_id: { type: [String], require: true },
   subcategories_id: { type: [String], require: true },

@@ -4,7 +4,6 @@ const path = require("path");
 const helmet = require("helmet");
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const multer = require("multer");
 
 const storeRoutes = require("./routes/store-routes");
 const authRoutes = require("./routes/auth-routes");
@@ -14,13 +13,15 @@ const productRoutes = require("./routes/product-routes");
 const app = express();
 
 app.use((req, res, next) => {
-  console.log(`URL: ${req.url}, Method: ${req.method}`);
+  console.log(
+    `URL: ${req.url}, Method: ${req.method}, process ID: ${process.pid}`
+  );
   next();
 });
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:3000", "http://localhost:3001"],
     credentials: true,
     optionsSuccessStatus: 200,
   })

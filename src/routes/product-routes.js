@@ -7,15 +7,21 @@ const {
   getStoresProducts,
   deleteProduct,
   updatedProduct,
+  getLatestProducts,
   postQuestion,
+  getProductById,
+  getSuggestionsByCategories,
 } = require("../controllers/products-controller");
 
 const router = express.Router();
 
 router.get("/store", checkTocken, getStoresProducts);
+router.get("/latest", getLatestProducts);
+router.get("/:id", getProductById);
+router.post("/suggestions/categories", getSuggestionsByCategories);
 router.post("/", checkTocken, storeImage, createProduct);
-router.delete("/:id", checkTocken, deleteProduct);
-router.put("/:id", checkTocken, updatedProduct);
 router.post("/question/:id", checkTocken, postQuestion);
+router.put("/:id", checkTocken, updatedProduct);
+router.delete("/:id", checkTocken, deleteProduct);
 
 module.exports = router;

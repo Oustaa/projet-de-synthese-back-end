@@ -2,6 +2,7 @@ const ProductsModel = require("../models/product.model");
 const StoreModule = require("../models/store.model");
 
 const serverErrorHandler = require("../middlewares/error_handler");
+const mongoose = require("mongoose");
 
 // projection for getting multiple products
 const projection = {
@@ -10,8 +11,8 @@ const projection = {
   price: 1,
   currency: 1,
   images: 1,
-  // category_id: 1,
-  // subcategory_id: 1,
+  categories_id: 1,
+  subcategories_id: 1,
 };
 
 // get products by store id
@@ -79,24 +80,164 @@ async function getProductsByCategory(req, res) {
   }
 }
 
+async function getProductsBySubCategory(req, res) {
+  const category = req.params.category;
+
+  if (!category)
+    return res.status(404).json({ message: `please provide a category` });
+
+  try {
+    const products = await ProductsModel.findMany(
+      { category_id: category },
+      projection
+    );
+
+    return res.status(200).json(products);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
+async function getLatestProducts(req, res) {
+  const { limit } = req.query;
+  try {
+    const products = await ProductsModel.aggregate([
+      { $sort: { inserted_at: -1 } },
+      { $limit: limit || 4 },
+      {
+        $lookup: {
+          from: "stores",
+          localField: "store_id",
+          foreignField: "_id",
+          as: "store",
+        },
+      },
+      {
+        $project: {
+          ...projection,
+          store: {
+            $arrayElemAt: ["$store.name", 0],
+          },
+        },
+      },
+    ]);
+
+    return res.json(products);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
+async function getSuggestionsByCategories(req, res) {
+  const limit = req.query;
+
+  try {
+    // const suggestions = await ProductsModel.find(
+    //   {
+    //     $and: [
+    //       {
+    //         categories_id: {
+    //           $in: req.body.categories_id,
+    //         },
+    //       },
+    //       {
+    //         subcategories_id: {
+    //           $in: req.body.subcategories_id,
+    //         },
+    //       },
+    //       { _id: { $ne: req.body.prodId } },
+    //     ],
+    //   },
+    //   projection
+    // ).limit(4);
+
+    const suggestions = await ProductsModel.aggregate([
+      {
+        $match: {
+          $and: [
+            { _id: { $ne: new mongoose.Types.ObjectId(req.body.prodId) } },
+            {
+              categories_id: {
+                $in: req.body.categories_id,
+              },
+            },
+            {
+              subcategories_id: {
+                $in: req.body.subcategories_id,
+              },
+            },
+          ],
+        },
+      },
+      { $limit: 4 },
+      {
+        $lookup: {
+          from: "stores",
+          localField: "store_id",
+          foreignField: "_id",
+          as: "store",
+        },
+      },
+      {
+        $project: {
+          ...projection,
+          store: {
+            $arrayElemAt: ["$store.name", 0],
+          },
+        },
+      },
+    ]);
+
+    res.json(suggestions);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
 // get single product id
 async function getProductById(req, res) {
   const productID = req.params.id;
 
   if (!productID)
-    return res.status(404).json({ message: `please provide a product id` });
+    return res.status(404).json({ message: "Please provide a product ID" });
 
   try {
     const product = await ProductsModel.findOne(
       { _id: productID },
-      { views: 0, visits: 0, available: 0 }
-    );
+      { _v: 0 }
+    ).lean();
 
-    // increacing product visits by one
-    product.visits = product.visits++;
-    product.save();
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
 
-    return res.status(200).json({ product });
+    // Increment product visits by one
+    // product.visits = product.visits + 1;
+    // await product.save();
+
+    // Perform the $lookup operation separately
+    const aggregatedProduct = await ProductsModel.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(productID) } },
+      {
+        $lookup: {
+          from: "stores",
+          localField: "store_id",
+          foreignField: "_id",
+          as: "store",
+        },
+      },
+      {
+        $project: {
+          store: {
+            $arrayElemAt: ["$store.name", 0],
+          },
+        },
+      },
+    ]);
+
+    return res
+      .status(200)
+      .json({ ...product, store: aggregatedProduct[0].store });
   } catch (error) {
     serverErrorHandler(res, error);
   }
@@ -202,7 +343,10 @@ module.exports = {
   getProductsByStoreId,
   getStoresProducts,
   getProductsByCategory,
+  getSuggestionsByCategories,
+  getLatestProducts,
   createProduct,
+  getProductById,
   deleteProduct,
   updatedProduct,
   postQuestion,
