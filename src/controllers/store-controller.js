@@ -45,20 +45,23 @@ async function getStoreById(req, res) {
   }
 
   try {
-    const store = await StoreModule.findById(id, {
-      name: 1,
-      bg_image: 1,
-      avatar: 1,
-      currency: 1,
-      followers: 1,
-    }).exec();
+    const store = await StoreModule.findOne(
+      { _id: id },
+      {
+        name: 1,
+        bg_image: 1,
+        avatar: 1,
+        currency: 1,
+        followers: 1,
+      }
+    );
 
     if (!store)
       return res
         .status(404)
         .json({ message: `There is no store with id ${id}.` });
 
-    return res.status(200).json({ store });
+    return res.status(200).json(store);
   } catch (error) {
     serverErrorHandler(res, error);
   }

@@ -25,16 +25,12 @@ async function getProductsByStoreId(req, res) {
     });
 
   try {
-    const products = await ProductsModel.findMany(
+    const products = await ProductsModel.find(
       { store_id: storeID },
       projection
     );
 
-    // if (!products)
-    //   return res
-    //     .status(404)
-    //     .json({ message: `There is no store with ID ${storeID}` });
-    return res.status(200).json({ products });
+    return res.status(200).json(products);
   } catch (error) {
     serverErrorHandler(res, error);
   }
@@ -65,36 +61,76 @@ async function getStoresProducts(req, res) {
 async function getProductsByCategory(req, res) {
   const category = req.params.category;
 
-  if (!category)
-    return res.status(404).json({ message: `please provide a category` });
-
   try {
-    const products = await ProductsModel.findMany(
-      { category_id: category },
-      projection
-    );
+    const products = await ProductsModel.aggregate([
+      { $match: { categories_id: { $in: [category] } } },
+      { $unwind: "$subcategories_id" },
+      {
+        $group: {
+          _id: "$subcategories_id",
+          products: { $push: "$$ROOT" },
+        },
+      },
+      {
+        $lookup: {
+          from: "stores",
+          localField: "products.store_id",
+          foreignField: "_id",
+          as: "store",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          products: {
+            $map: {
+              input: "$products",
+              as: "product",
+              in: {
+                title: "$$product.title",
+                price: "$$product.price",
+                images: "$$product.images",
+                currency: "$$product.currency",
+                store: { $arrayElemAt: ["$store.name", 0] },
+              },
+            },
+          },
+        },
+      },
+    ]);
 
     return res.status(200).json(products);
   } catch (error) {
-    serverErrorHandler(res, error);
+    return res.status(500).json({ message: "Error fetching products", error });
   }
 }
 
 async function getProductsBySubCategory(req, res) {
-  const category = req.params.category;
-
-  if (!category)
-    return res.status(404).json({ message: `please provide a category` });
+  const subCategory = req.params.subCategory;
 
   try {
-    const products = await ProductsModel.findMany(
-      { category_id: category },
-      projection
-    );
+    const products = await ProductsModel.aggregate([
+      { $match: { subcategories_id: { $in: [subCategory] } } },
+      {
+        $lookup: {
+          from: "stores",
+          localField: "store_id",
+          foreignField: "_id",
+          as: "store",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          ...projection,
+          store: { $arrayElemAt: ["$store.name", 0] },
+        },
+      },
+    ]);
 
     return res.status(200).json(products);
   } catch (error) {
-    serverErrorHandler(res, error);
+    return res.status(500).json({ message: "Error fetching products", error });
   }
 }
 
@@ -343,6 +379,7 @@ module.exports = {
   getProductsByStoreId,
   getStoresProducts,
   getProductsByCategory,
+  getProductsBySubCategory,
   getSuggestionsByCategories,
   getLatestProducts,
   createProduct,
