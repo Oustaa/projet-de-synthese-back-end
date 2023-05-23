@@ -10,6 +10,7 @@ const {
   updatedProduct,
   getProductsByCategory,
   getProductsBySubCategory,
+  getproductsBySearch,
   getLatestProducts,
   postQuestion,
   getProductById,
@@ -19,6 +20,7 @@ const {
 const router = express.Router();
 
 router.get("/store", checkTocken, getStoresProducts);
+router.get("/search", getproductsBySearch);
 router.get("/store/:id", getProductsByStoreId);
 router.get("/category/:category", getProductsByCategory);
 router.get("/subCategory/:subCategory", getProductsBySubCategory);

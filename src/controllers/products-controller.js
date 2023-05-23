@@ -63,36 +63,26 @@ async function getProductsByCategory(req, res) {
 
   try {
     const products = await ProductsModel.aggregate([
-      { $match: { categories_id: { $in: [category] } } },
+      { $match: { categories_id: [category] } },
       { $unwind: "$subcategories_id" },
-      {
-        $group: {
-          _id: "$subcategories_id",
-          products: { $push: "$$ROOT" },
-        },
-      },
       {
         $lookup: {
           from: "stores",
-          localField: "products.store_id",
+          localField: "store_id",
           foreignField: "_id",
           as: "store",
         },
       },
       {
-        $project: {
-          _id: 1,
+        $group: {
+          _id: "$subcategories_id",
           products: {
-            $map: {
-              input: "$products",
-              as: "product",
-              in: {
-                title: "$$product.title",
-                price: "$$product.price",
-                images: "$$product.images",
-                currency: "$$product.currency",
-                store: { $arrayElemAt: ["$store.name", 0] },
-              },
+            $push: {
+              _id: "$_id",
+              title: "$title",
+              price: "$price",
+              images: "$images",
+              store: { $arrayElemAt: ["$store.name", 0] },
             },
           },
         },
@@ -280,7 +270,65 @@ async function getProductById(req, res) {
 }
 
 // get products by search term
-async function getproductsBysearch(rea, res) {}
+async function getproductsBySearch(req, res) {
+  const query = req.query.q;
+  const words = query.split(" ");
+
+  const regexPatterns = words.map((word) => new RegExp(word, "i"));
+
+  try {
+    const products = await ProductsModel.aggregate([
+      {
+        $match: {
+          $or: [
+            { title: { $all: regexPatterns } },
+            { description: { $all: regexPatterns } },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "stores",
+          localField: "store_id",
+          foreignField: "_id",
+          as: "store",
+        },
+      },
+      {
+        $addFields: {
+          store: { $arrayElemAt: ["$store.name", 0] },
+          matchType: {
+            $cond: [
+              { $regexMatch: { input: "$title", regex: query, options: "i" } },
+              "title",
+              "description",
+            ],
+          },
+        },
+      },
+      {
+        $sort: {
+          matchType: -1, // Sort in descending order, title matches first
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          price: 1,
+          currency: 1,
+          images: 1,
+          categories_id: 1,
+          subcategories_id: 1,
+          store: 1,
+        },
+      },
+    ]);
+
+    return res.json(products);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
 
 // creating a product
 async function createProduct(req, res) {
@@ -311,7 +359,9 @@ async function createProduct(req, res) {
       available: Boolean(JSON.parse(productsInfo.stock_Quantity)),
       stock_Quantity: JSON.parse(productsInfo.stock_Quantity),
       about: productsInfo.about ? JSON.parse(productsInfo.about) : [],
-      categories_id: JSON.parse(productsInfo.categories_id),
+      categories_id: new Array(
+        ...new Set(JSON.parse(productsInfo.categories_id))
+      ),
       subcategories_id: JSON.parse(productsInfo.subcategories_id),
       images,
       store_id,
@@ -326,15 +376,14 @@ async function createProduct(req, res) {
 async function deleteProduct(req, res) {
   const id = req.params.id;
   const storeId = req.store.id;
-
   try {
     const product = await ProductsModel.findById(id);
 
-    if (product.store_id !== storeId)
+    if (product.store_id.toString() !== storeId)
       return res.json({ message: "Product not yours" });
 
     const deleteCount = await ProductsModel.deleteOne({ _id: id });
-
+    console.log(deleteCount);
     return res.json(deleteCount);
   } catch (error) {
     serverErrorHandler(res, error);
@@ -382,6 +431,7 @@ module.exports = {
   getProductsBySubCategory,
   getSuggestionsByCategories,
   getLatestProducts,
+  getproductsBySearch,
   createProduct,
   getProductById,
   deleteProduct,
