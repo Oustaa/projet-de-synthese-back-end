@@ -14,7 +14,7 @@ connection.once("open", () => {
     console.log("Master has been started..");
     const NUM_WORKERS = os.cpus().length;
     console.log(NUM_WORKERS);
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 4; i++) {
       cluster.fork();
     }
   } else {

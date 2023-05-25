@@ -33,7 +33,8 @@ async function login(req, res) {
 
     const token = jwt.sign(
       { id: store._id, name: store.name },
-      ACCESS_TOKEN_SECRET
+      ACCESS_TOKEN_SECRET,
+      { expiresIn: "30min" }
     );
 
     res.cookie("token", token, {

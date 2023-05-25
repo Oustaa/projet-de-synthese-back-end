@@ -150,9 +150,9 @@ async function createStore(req, res, next) {
   }
 }
 
-async function getStoreBy(req, res) {
+async function getStoreByFilters(req, res) {
   const { filter, limit } = req.body;
-  console.log(req.body);
+
   const storeCount = await StoreModule.find(filter, {}).count();
 
   if (storeCount === limit) {
@@ -248,7 +248,7 @@ module.exports = {
   createStore,
   getStoreById,
   putStore,
-  getStoreBy,
+  getStoreByFilters,
   deleteStore,
   postAnswer,
 };

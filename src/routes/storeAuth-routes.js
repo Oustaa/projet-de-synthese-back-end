@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { checkTocken } = require("../middlewares/authentication");
+const { verifyStoreToken } = require("../middlewares/verifyStoreToken");
 
 const {
   login,
@@ -12,6 +12,6 @@ const router = express.Router();
 
 router.post("/login", login);
 router.get("/isloggedin", isloggedin);
-router.post("/confirm/pass", checkTocken, confirmPassword);
+router.post("/confirm/pass", verifyStoreToken, confirmPassword);
 
 module.exports = router;

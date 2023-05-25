@@ -308,7 +308,7 @@ async function getproductsBySearch(req, res) {
       },
       {
         $sort: {
-          matchType: -1, // Sort in descending order, title matches first
+          matchType: -1,
         },
       },
       {

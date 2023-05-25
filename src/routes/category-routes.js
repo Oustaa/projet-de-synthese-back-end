@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { checkTocken } = require("../middlewares/authentication");
+const { verifyStoreToken } = require("../middlewares/verifyStoreToken");
 
 const {
   getCategories,
@@ -11,7 +11,7 @@ const {
 const router = express.Router();
 
 router.get("/", getCategories);
-router.post("/", checkTocken, createCategory);
-router.post("/:id", checkTocken, createSubCategory);
+router.post("/", verifyStoreToken, createCategory);
+router.post("/:id", verifyStoreToken, createSubCategory);
 
 module.exports = router;

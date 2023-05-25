@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
+const { Schema, model, Types } = require("mongoose");
 
-const productSchema = {
+const productSchema = Schema({
   // products information
   store_id: {
-    type: mongoose.Types.ObjectId,
+    type: Types.ObjectId,
     ref: "store",
     required: true,
   },
@@ -41,6 +41,6 @@ const productSchema = {
   // statistics
   views: { type: Number, default: 0 },
   visits: { type: Number, default: 0 },
-};
+});
 
-module.exports = mongoose.model("Product", productSchema);
+module.exports = model("Product", productSchema);

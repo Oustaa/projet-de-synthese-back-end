@@ -6,7 +6,8 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 
 const storeRoutes = require("./routes/store-routes");
-const authRoutes = require("./routes/auth-routes");
+const storeAuthRoutes = require("./routes/storeAuth-routes");
+const userAuthRoutes = require("./routes/usersAuth-routes");
 const categoryRoutes = require("./routes/category-routes");
 const productRoutes = require("./routes/product-routes");
 const cartRoutes = require("./routes/cart-routes");
@@ -39,7 +40,8 @@ app.use(express.json());
 app.use("/api", express.static(path.join(__dirname, "..", "public")));
 
 app.use("/api/stores", storeRoutes);
-app.use("/api/auth", authRoutes);
+app.use("/api/auth/stores", storeAuthRoutes);
+app.use("/api/auth/users", userAuthRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);

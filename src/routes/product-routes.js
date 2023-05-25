@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { checkTocken } = require("../middlewares/authentication");
+const { verifyStoreToken } = require("../middlewares/verifyStoreToken");
 const { storeImage } = require("../middlewares/storeImage");
 const {
   getProductsByStoreId,
@@ -19,7 +19,7 @@ const {
 
 const router = express.Router();
 
-router.get("/store", checkTocken, getStoresProducts);
+router.get("/store", verifyStoreToken, getStoresProducts);
 router.get("/search", getproductsBySearch);
 router.get("/store/:id", getProductsByStoreId);
 router.get("/category/:category", getProductsByCategory);
@@ -27,9 +27,9 @@ router.get("/subCategory/:subCategory", getProductsBySubCategory);
 router.get("/latest", getLatestProducts);
 router.get("/:id", getProductById);
 router.post("/suggestions/categories", getSuggestionsByCategories);
-router.post("/", checkTocken, storeImage, createProduct);
-router.post("/question/:id", checkTocken, postQuestion);
-router.put("/:id", checkTocken, updatedProduct);
-router.delete("/:id", checkTocken, deleteProduct);
+router.post("/", verifyStoreToken, storeImage, createProduct);
+router.post("/question/:id", verifyStoreToken, postQuestion);
+router.put("/:id", verifyStoreToken, updatedProduct);
+router.delete("/:id", verifyStoreToken, deleteProduct);
 
 module.exports = router;

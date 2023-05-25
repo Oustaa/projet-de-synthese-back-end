@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+const { Schema, model } = require("mongoose");
 
-const storeSchema = {
+const storeSchema = Schema({
   name: { type: String, required: true, unique: true },
   bg_image: { type: String, default: "" },
   avatar: { type: String, default: "" },
@@ -20,6 +20,6 @@ const storeSchema = {
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: null },
   deleted_at: { type: Date, default: null },
-};
+});
 
-module.exports = mongoose.model("store", storeSchema);
+module.exports = model("store", storeSchema);

@@ -5,25 +5,25 @@ const { storeImage } = require("../services/uploadImage");
 const {
   getStore,
   createStore,
-  getStoreBy,
+  getStoreByFilters,
   getStoreById,
   putStore,
   deleteStore,
   postAnswer,
 } = require("../controllers/store-controller");
-const { checkTocken } = require("../middlewares/authentication");
+const { verifyStoreToken } = require("../middlewares/verifyStoreToken");
 
 const router = express.Router();
 
 // getting store for store owner
-router.get("/", checkTocken, getStore);
+router.get("/", verifyStoreToken, getStore);
 // getting store for a user
 router.get("/:id", getStoreById);
-router.post("/exists", getStoreBy);
+router.post("/exists", getStoreByFilters);
 router.post("/", createStore);
-router.put("/", checkTocken, putStore);
-router.delete("/", checkTocken, deleteStore);
-router.post("/upload/:type", checkTocken, storeImage);
-router.post("/answer/:id", checkTocken, postAnswer);
+router.put("/", verifyStoreToken, putStore);
+router.delete("/", verifyStoreToken, deleteStore);
+router.post("/upload/:type", verifyStoreToken, storeImage);
+router.post("/answer/:id", verifyStoreToken, postAnswer);
 
 module.exports = router;
