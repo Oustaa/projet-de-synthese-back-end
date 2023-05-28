@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model, Types } = require("mongoose");
 
 const userSchema = Schema(
   {
@@ -20,7 +20,7 @@ const userSchema = Schema(
     cover_img: { type: String, default: "" },
     adress: { type: String, required: true },
     wishlist: { type: [String], default: [] },
-    visists: { type: [String], default: [] },
+    visits: { type: [String], default: [] },
     search: { type: [String], default: [] },
   },
   { timestamps: true }

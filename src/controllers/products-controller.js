@@ -158,25 +158,6 @@ async function getSuggestionsByCategories(req, res) {
   const limit = req.query;
 
   try {
-    // const suggestions = await ProductsModel.find(
-    //   {
-    //     $and: [
-    //       {
-    //         categories_id: {
-    //           $in: req.body.categories_id,
-    //         },
-    //       },
-    //       {
-    //         subcategories_id: {
-    //           $in: req.body.subcategories_id,
-    //         },
-    //       },
-    //       { _id: { $ne: req.body.prodId } },
-    //     ],
-    //   },
-    //   projection
-    // ).limit(4);
-
     const suggestions = await ProductsModel.aggregate([
       {
         $match: {
@@ -430,6 +411,38 @@ async function postQuestion(req, res) {
   }
 }
 
+async function getProductsByIds(req, res) {
+  const ids = req.body.ids;
+  try {
+    const products = await ProductsModel.aggregate([
+      {
+        $match: {
+          _id: { $in: ids.map((id) => new mongoose.Types.ObjectId(id)) },
+        },
+      },
+      {
+        $lookup: {
+          from: "stores",
+          localField: "store_id",
+          foreignField: "_id",
+          as: "store",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          ...projection,
+          store: { $arrayElemAt: ["$store.name", 0] },
+        },
+      },
+    ]);
+
+    return res.json(products);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
 module.exports = {
   getProductsByStoreId,
   getStoresProducts,
@@ -443,4 +456,5 @@ module.exports = {
   deleteProduct,
   updatedProduct,
   postQuestion,
+  getProductsByIds,
 };

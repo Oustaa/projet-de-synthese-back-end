@@ -8,7 +8,7 @@ const {
   toggleProductQuantity,
   deleteProductFromCart,
   toggleProductSavedLater,
-} = require("../controllers/carts-controller");
+} = require("../controllers/cart-controller");
 
 const router = express.Router();
 

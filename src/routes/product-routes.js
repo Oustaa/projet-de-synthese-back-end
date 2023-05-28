@@ -16,6 +16,7 @@ const {
   postQuestion,
   getProductById,
   getSuggestionsByCategories,
+  getProductsByIds,
 } = require("../controllers/products-controller");
 
 const router = express.Router();
@@ -27,6 +28,7 @@ router.get("/category/:category", getProductsByCategory);
 router.get("/subCategory/:subCategory", getProductsBySubCategory);
 router.get("/latest", getLatestProducts);
 router.get("/:id", getProductById);
+router.post("/ids", getProductsByIds);
 router.post("/suggestions/categories", getSuggestionsByCategories);
 router.post("/", verifyStoreToken, storeImage, createProduct);
 router.post("/question/:id", verifyUserToken, postQuestion);

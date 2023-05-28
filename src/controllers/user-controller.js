@@ -78,4 +78,28 @@ async function logIn(req, res) {
   }
 }
 
-module.exports = { getStoreByFilters, createUser, logIn };
+async function postVisits(req, res) {
+  const visits = req.body.visits;
+  const user = req.user.id;
+
+  try {
+    const userDoc = await UserModel.findById(user);
+
+    const updatedVisits = [
+      ...visits,
+      ...userDoc.visits.filter((visit) => !visits.includes(visit)),
+    ];
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      user,
+      { visits: updatedVisits },
+      { new: true }
+    );
+
+    res.json(updatedUser);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
+module.exports = { getStoreByFilters, createUser, logIn, postVisits };
