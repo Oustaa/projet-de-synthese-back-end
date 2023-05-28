@@ -30,7 +30,7 @@ async function createUser(req, res) {
     await CartModel.create({ user: createdUser._id });
 
     const token = await jwt.sign(
-      { _id: createdUser._id },
+      { _id: createdUser._id, username: user.username, type: "user" },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "30min" }
     );
@@ -64,11 +64,15 @@ async function logIn(req, res) {
       });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: "30min",
-    });
+    const token = jwt.sign(
+      { id: user._id, username: user.username, type: "user" },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "12h",
+      }
+    );
 
-    return res.status(200).json({ token });
+    return res.status(200).json({ token, username: user.username });
   } catch (error) {
     serverErrorHandler(res, error);
   }

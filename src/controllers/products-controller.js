@@ -414,7 +414,13 @@ async function postQuestion(req, res) {
     const updateCount = await StoreModule.updateOne(
       { _id: product.store_id },
       {
-        $push: { questions: { product_id: productId, text: req.body.text } },
+        $push: {
+          questions: {
+            product_id: productId,
+            text: req.body.text,
+            user: req.user.id,
+          },
+        },
       }
     );
 

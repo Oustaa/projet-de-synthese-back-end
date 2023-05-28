@@ -7,10 +7,11 @@ const cartSchema = Schema({
         type: Types.ObjectId,
         ref: "Product",
       },
-      quantity: {
+      qte: {
         type: Number,
         default: 1,
       },
+      saveLater: { type: Boolean, default: false },
       price: Number,
     },
   ],
@@ -18,7 +19,7 @@ const cartSchema = Schema({
     type: Types.ObjectId,
     ref: "User",
   },
-  totalPrice: Number,
+  totalPrice: { type: Number, default: 0 },
 });
 
 module.exports = model("Cart", cartSchema);

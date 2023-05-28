@@ -134,7 +134,7 @@ async function createStore(req, res, next) {
     });
 
     const token = jwt.sign(
-      { id: store._id, name: store.name },
+      { id: store._id, name: store.name, type: "store" },
       ACCESS_TOKEN_SECRET
     );
 
@@ -209,8 +209,6 @@ async function postAnswer(req, res) {
   const storeid = req.store.id;
 
   const QandA = req.body;
-
-  console.log(QandA, qestionId, productId, storeid);
 
   try {
     const { acknowledged, modifiedCount } = await ProductModule.updateOne(

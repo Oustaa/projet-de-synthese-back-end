@@ -32,7 +32,7 @@ async function login(req, res) {
     }
 
     const token = jwt.sign(
-      { id: store._id, name: store.name },
+      { id: store._id, name: store.name, type: "store" },
       ACCESS_TOKEN_SECRET,
       { expiresIn: "30min" }
     );
@@ -51,16 +51,17 @@ async function login(req, res) {
 
 async function isloggedin(req, res) {
   try {
-    const token = req.cookies?.token || req.headers.access_token;
+    const token = req.cookies?.token || req.headers.authorization;
+
     if (!token)
       return res.status(401).json({ message_error: "please provide a token" });
 
-    jwt.verify(token, ACCESS_TOKEN_SECRET, async (err, store) => {
+    jwt.verify(token, ACCESS_TOKEN_SECRET, async (err, item) => {
       if (err) {
         return res.status(401).json({ message_error: err.message, err });
       }
 
-      return res.status(200).json({ store });
+      return res.status(202).json({ token, username: item.username });
     });
   } catch (error) {
     res.status(500).json({ message_error: error.message, error });

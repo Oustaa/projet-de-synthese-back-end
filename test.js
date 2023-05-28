@@ -401,21 +401,61 @@ const categories = [
 
 const categoriesSlected = [];
 
-["Gaming Accessories", "Computers and Accessories", "Skincare"].map(
-  (subCat) => {
-    for (let category of categories) {
-      for (let sub of Object.values(category)[2]) {
-        if (Object.values(sub)[0] === subCat)
-          categoriesSlected.push({
-            value: {
-              susubcategory_id: subCat,
-              category_id: category._id,
-            },
-            label: subCat,
-          });
-        break;
+// ["Gaming Accessories", "Computers and Accessories", "Skincare"].map(
+//   (subCat) => {
+//     for (let category of categories) {
+//       for (let sub of Object.values(category)[2]) {
+//         if (Object.values(sub)[0] === subCat)
+//           categoriesSlected.push({
+//             value: {
+//               susubcategory_id: subCat,
+//               category_id: category._id,
+//             },
+//             label: subCat,
+//           });
+//         break;
+//       }
+//     }
+//   }
+// );
+// console.log(categoriesSlected);
+
+let cartItems = [
+  {
+    product: "6470d4cfa13a8cbb5bfaf325",
+    qte: 2,
+    saveLater: false,
+    price: 49.99,
+  },
+  {
+    product: "646be591683bf7b1986c71ee",
+    qte: 6,
+    saveLater: false,
+    price: 12.99,
+  },
+];
+
+const newCartProducts = [
+  {
+    product: "646be591683bf7b1986c71ee",
+    qte: 444,
+    price: 12.99,
+  },
+];
+
+const cartProductsIds = cartItems.map((elem) => elem.product);
+
+newCartProducts.forEach((item) => {
+  if (cartProductsIds.includes(item.product)) {
+    cartItems = cartItems.map((prod) => {
+      if (prod.product === item.product) {
+        return { ...prod, qte1: prod.qte + item.qte, saveLater: item.product };
       }
-    }
+      return prod;
+    });
+  } else {
+    cartItems.push({ ...item, saveLater: false });
   }
-);
-console.log(categoriesSlected);
+});
+
+console.log(cartItems);

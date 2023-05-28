@@ -15,7 +15,12 @@ const productSchema = Schema({
   about: { type: [String], require: true },
   QandA: {
     type: [
-      { question: String, answer: String, vote: { type: Number, default: 0 } },
+      {
+        question: String,
+        answer: String,
+        vote: { type: Number, default: 0 },
+        user: { type: Types.ObjectId, ref: "User" },
+      },
     ],
     default: [],
   },
