@@ -27,7 +27,6 @@ async function postCartProducts(req, res) {
     let { cartItems } = usersCart;
 
     const cartProductsIds = cartItems.map((elem) => elem.product.toString());
-    console.log(cartItems);
 
     cart.forEach((item) => {
       if (cartProductsIds.includes(item.product)) {

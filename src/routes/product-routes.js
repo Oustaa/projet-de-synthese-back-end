@@ -17,6 +17,7 @@ const {
   getProductById,
   getSuggestionsByCategories,
   getProductsByIds,
+  productViewed,
 } = require("../controllers/products-controller");
 
 const router = express.Router();
@@ -33,6 +34,7 @@ router.post("/suggestions/categories", getSuggestionsByCategories);
 router.post("/", verifyStoreToken, storeImage, createProduct);
 router.post("/question/:id", verifyUserToken, postQuestion);
 router.put("/:id", verifyStoreToken, updatedProduct);
+router.put("/viewed/:id", productViewed);
 router.delete("/:id", verifyStoreToken, deleteProduct);
 
 module.exports = router;

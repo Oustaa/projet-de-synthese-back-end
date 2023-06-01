@@ -155,7 +155,7 @@ async function getLatestProducts(req, res) {
 }
 
 async function getSuggestionsByCategories(req, res) {
-  const limit = req.query;
+  // const limit = req.query;
 
   try {
     const suggestions = await ProductsModel.aggregate([
@@ -209,42 +209,30 @@ async function getProductById(req, res) {
     return res.status(404).json({ message: "Please provide a product ID" });
 
   try {
-    const product = await ProductsModel.findOne(
+    const product = await ProductsModel.findOneAndUpdate(
       { _id: productID },
+      { $inc: { visits: 1 } },
       { _v: 0 }
-    ).lean();
+    )
+      .populate({
+        path: "store_id",
+        select: "name",
+      })
+      .lean();
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Increment product visits by one
-    // product.visits = product.visits + 1;
-    // await product.save();
+    const { _id: store_id, name: store } = product.store_id;
 
-    // Perform the $lookup operation separately
-    const aggregatedProduct = await ProductsModel.aggregate([
-      { $match: { _id: new mongoose.Types.ObjectId(productID) } },
-      {
-        $lookup: {
-          from: "stores",
-          localField: "store_id",
-          foreignField: "_id",
-          as: "store",
-        },
-      },
-      {
-        $project: {
-          store: {
-            $arrayElemAt: ["$store.name", 0],
-          },
-        },
-      },
-    ]);
+    const modifiedProduct = {
+      ...product,
+      store_id,
+      store,
+    };
 
-    return res
-      .status(200)
-      .json({ ...product, store: aggregatedProduct[0].store });
+    return res.status(200).json(modifiedProduct);
   } catch (error) {
     serverErrorHandler(res, error);
   }
@@ -413,6 +401,7 @@ async function postQuestion(req, res) {
 
 async function getProductsByIds(req, res) {
   const ids = req.body.ids;
+
   try {
     const products = await ProductsModel.aggregate([
       {
@@ -443,6 +432,20 @@ async function getProductsByIds(req, res) {
   }
 }
 
+async function productViewed(req, res) {
+  const id = req.params.id;
+  try {
+    const updated = await ProductsModel.updateOne(
+      { _id: id },
+      { $inc: { views: 1 } }
+    );
+
+    res.json(updated);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
 module.exports = {
   getProductsByStoreId,
   getStoresProducts,
@@ -457,4 +460,5 @@ module.exports = {
   updatedProduct,
   postQuestion,
   getProductsByIds,
+  productViewed,
 };

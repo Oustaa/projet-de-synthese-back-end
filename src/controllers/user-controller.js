@@ -72,13 +72,15 @@ async function logIn(req, res) {
       }
     );
 
-    return res.status(200).json({ token, username: user.username });
+    return res
+      .status(200)
+      .json({ token, username: user.username, currency: user.currency });
   } catch (error) {
     serverErrorHandler(res, error);
   }
 }
 
-async function postVisits(req, res) {
+async function postVisit(req, res) {
   const visits = req.body.visits;
   const user = req.user.id;
 
@@ -90,16 +92,38 @@ async function postVisits(req, res) {
       ...userDoc.visits.filter((visit) => !visits.includes(visit)),
     ];
 
-    const updatedUser = await UserModel.findByIdAndUpdate(
-      user,
-      { visits: updatedVisits },
-      { new: true }
-    );
+    await UserModel.findByIdAndUpdate(user, { visits: updatedVisits });
 
-    res.json(updatedUser);
+    res.json(updatedVisits);
   } catch (error) {
     serverErrorHandler(res, error);
   }
 }
 
-module.exports = { getStoreByFilters, createUser, logIn, postVisits };
+async function postSearch(req, res) {
+  const search = req.body.search;
+  const user = req.user.id;
+
+  try {
+    const userDoc = await UserModel.findById(user);
+
+    const updatedSearch = [
+      ...search,
+      ...userDoc.search.filter((elem) => !search.includes(elem)),
+    ];
+
+    await UserModel.findByIdAndUpdate(user, { search: updatedSearch });
+
+    res.json(updatedSearch);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
+module.exports = {
+  getStoreByFilters,
+  createUser,
+  logIn,
+  postVisit,
+  postSearch,
+};
