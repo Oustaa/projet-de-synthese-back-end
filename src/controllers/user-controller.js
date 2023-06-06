@@ -30,9 +30,9 @@ async function createUser(req, res) {
     await CartModel.create({ user: createdUser._id });
 
     const token = await jwt.sign(
-      { _id: createdUser._id, username: user.username, type: "user" },
+      { _id: createdUser._id, username: createdUser.username, type: "user" },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "30min" }
+      { expiresIn: "12h" }
     );
 
     return res.status(201).json({ token, usename: createdUser.username });

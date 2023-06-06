@@ -7,6 +7,10 @@ const cartSchema = Schema({
         type: Types.ObjectId,
         ref: "Product",
       },
+      store: {
+        type: Types.ObjectId,
+        ref: "store",
+      },
       qte: {
         type: Number,
         default: 1,

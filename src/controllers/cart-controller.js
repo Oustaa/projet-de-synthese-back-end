@@ -21,7 +21,7 @@ async function postCartProducts(req, res) {
 
   try {
     const usersCart = await CartModel.findOne({
-      _id: new mongoose.Types.ObjectId("646faeacef5e619091b4534d"),
+      user: new mongoose.Types.ObjectId(userId),
     }).lean();
 
     let { cartItems } = usersCart;

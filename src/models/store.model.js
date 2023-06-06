@@ -25,6 +25,26 @@ const storeSchema = Schema(
       ],
       default: [],
     },
+    orders: {
+      type: [
+        {
+          order: { type: Types.ObjectId, ref: "Order" },
+          item: [
+            {
+              product: { type: Types.ObjectId, ref: "Product" },
+              qte: Number,
+              status: { type: String, default: "pending" },
+            },
+          ],
+          adress: {
+            county: String,
+            city: String,
+            street: String,
+            zipCode: String,
+          },
+        },
+      ],
+    },
     visits: { type: [Object], default: 0 },
     views: { type: [Object], default: 0 },
     created_at: { type: Date, default: Date.now },
