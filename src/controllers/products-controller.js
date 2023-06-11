@@ -25,10 +25,24 @@ async function getProductsByStoreId(req, res) {
     });
 
   try {
-    const products = await ProductsModel.find(
-      { store_id: storeID },
-      projection
-    );
+    const products = await ProductsModel.aggregate([
+      { $match: { store_id: new mongoose.Types.ObjectId(storeID) } },
+      {
+        $lookup: {
+          from: "stores",
+          localField: "store_id",
+          foreignField: "_id",
+          as: "store",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          ...projection,
+          store: { $arrayElemAt: ["$store.name", 0] },
+        },
+      },
+    ]);
 
     return res.status(200).json(products);
   } catch (error) {

@@ -120,10 +120,32 @@ async function postSearch(req, res) {
   }
 }
 
+// wishlist
+async function postWishList(req, res) {
+  const wishlist = req.body.wishlist;
+  const user = req.user.id;
+
+  try {
+    const userDoc = await UserModel.findById(user);
+
+    const updatedWishlist = [
+      ...wishlist,
+      ...userDoc.wishlist.filter((elem) => !wishlist.includes(elem)),
+    ];
+
+    await UserModel.findByIdAndUpdate(user, { wishlist: updatedWishlist });
+
+    res.json(updatedWishlist);
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
+}
+
 module.exports = {
   getStoreByFilters,
   createUser,
   logIn,
   postVisit,
   postSearch,
+  postWishList,
 };

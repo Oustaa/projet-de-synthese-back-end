@@ -45,15 +45,20 @@ async function getStoreById(req, res) {
   }
 
   try {
-    const store = await StoreModule.findOne(
+    const store = await StoreModule.findOneAndUpdate(
       { _id: id },
+      {
+        $inc: { visits: 1 },
+      },
+
       {
         name: 1,
         bg_image: 1,
         avatar: 1,
         currency: 1,
         followers: 1,
-      }
+      },
+      { new: true }
     );
 
     if (!store)
