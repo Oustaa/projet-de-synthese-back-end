@@ -12,6 +12,14 @@ async function postOrder(req, res) {
     // Post order to the order collection
     const order = await OrderModel.create({ user_id, ...orderData });
 
+    // Update the qte of the products in the store qte
+    for (const element of order.items) {
+      await ProductModel.updateOne(
+        { _id: element.product, store_id: element.store },
+        { $inc: { stock_Quantity: -element.qte } }
+      );
+    }
+
     return res.json(order);
   } catch (error) {
     serverErrorHandler(res, error);
@@ -41,6 +49,8 @@ async function getOrdersByStore(req, res) {
           _id: "$_id",
           items: { $push: "$items" },
           user: { $first: "$user" },
+          currency: { $first: "$currency" },
+          createdAt: { $first: "$createdAt" },
         },
       },
     ]);
@@ -58,11 +68,7 @@ async function getOrdersByUser(req, res) {
     const orders = await OrderModel.find(
       { user_id: userId },
       {
-        items: 1,
-        total: 1,
-        state: 1,
-        createdAt: 1,
-        "user.adress": 1,
+        __v: 0,
       }
     );
 

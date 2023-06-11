@@ -28,6 +28,7 @@ const storeSchema = Schema(
       },
     },
     total: { type: Types.Decimal128 },
+    currency: { type: String },
     state: { type: String, default: "pending" },
   },
   { timestamps: true }

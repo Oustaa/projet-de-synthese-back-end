@@ -68,7 +68,7 @@ async function logIn(req, res) {
       { id: user._id, username: user.username, type: "user" },
       process.env.ACCESS_TOKEN_SECRET,
       {
-        expiresIn: "12h",
+        expiresIn: "24h",
       }
     );
 
