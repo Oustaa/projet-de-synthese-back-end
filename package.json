@@ -1,14 +1,21 @@
 {
-  "name": "back end",
+  "name": "back-end",
   "version": "1.0.0",
   "description": "",
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon",
-    "start": "nodemon"
+    "start": "node"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "nodejs",
+    "express",
+    "oussama tailba",
+    "Oussama",
+    "amazon",
+    "ecomerce"
+  ],
+  "author": "Oussama Tailba",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.0",

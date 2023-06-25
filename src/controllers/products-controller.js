@@ -366,7 +366,7 @@ async function deleteProduct(req, res) {
       return res.json({ message: "Product not yours" });
 
     const deleteCount = await ProductsModel.deleteOne({ _id: id });
-    console.log(deleteCount);
+
     return res.json(deleteCount);
   } catch (error) {
     serverErrorHandler(res, error);
@@ -415,7 +415,7 @@ async function postQuestion(req, res) {
 
 async function getProductsByIds(req, res) {
   const ids = req.body.ids;
-
+  console.log(req.body);
   try {
     const products = await ProductsModel.aggregate([
       {
