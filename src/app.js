@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: ["http://localhost:3000", "http://localhost:3001","https://amazon-clone-store.onrender.com", "https://amazon-clone-l4tm.onrender.com"],
     credentials: true,
     optionsSuccessStatus: 200,
   })
